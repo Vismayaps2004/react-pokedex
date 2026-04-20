@@ -1,4 +1,5 @@
 import { useReducer, useState } from "react";
+import { produce } from "immer";
 import "./App.css";
 const TYPES = [
   "bug",
@@ -118,15 +119,22 @@ const PokemonDetails = ({ pokemon }) => (
 const reducer = (state, action) => {
   switch (action.type) {
     case "search":
-      return state.filter((poke) => poke.name.includes(action.value));
+      return produce(
+        state,
+        (draft) => draft.filter((poke) => poke.name.includes(action.value)),
+      );
 
     case "all":
       return action.pokemon;
 
     case "type":
-      return state.filter((pokemon) => {
-        return pokemon.types.some((type) => type === action.category);
-      });
+      return produce(
+        state,
+        (draft) =>
+          draft.filter((pokemon) =>
+            pokemon.types.some((type) => type === action.category)
+          ),
+      );
 
     default:
       throw new Error("invalid option");

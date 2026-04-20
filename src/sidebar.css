@@ -30,6 +30,16 @@
   cursor: pointer;
 }
 
-.side-bar-color {
+button {
+  padding: 0.5em;
+  font-size: 20;
+  line-height: 1em;
+  color: hsla(240, 3%, 8%, 0.737);
+  text-decoration: none;
+}
+
+button:hover {
+  background-color: hsla(240, 3%, 8%, 0.737);
   color: whitesmoke;
+  cursor: pointer;
 }

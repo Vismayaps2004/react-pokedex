@@ -1,7 +1,6 @@
 import { useReducer, useState } from "react";
 import "./App.css";
 const TYPES = [
-  "all",
   "bug",
   "dark",
   "dragon",
@@ -63,7 +62,7 @@ const PokemonImage = ({ image }) => {
   );
 };
 
-const SeacrhBar = ({ dispatch, pokemon }) => {
+const SeacrhBar = ({ dispatch }) => {
   const [value, setValue] = useState("");
 
   return (
@@ -83,17 +82,18 @@ const SeacrhBar = ({ dispatch, pokemon }) => {
   );
 };
 
-const SetSideBar = ({ dispatch, pokemon, allPokemon }) => {
+const SetSideBar = ({ dispatch, pokemon }) => {
   return (
     <div className="side-bar">
-      <SeacrhBar dispatch={dispatch} pokemon={pokemon}></SeacrhBar>
-      {TYPES.map((type) => (
+      <SeacrhBar dispatch={dispatch}></SeacrhBar>
+      <button onClick={() => dispatch({ type: "all", pokemon })}>all</button>
+      {TYPES.map((category) => (
         <span
-          key={type}
+          key={category}
           className="side-bar-link"
-          onClick={() => dispatch({ type, pokemon: allPokemon })}
+          onClick={() => dispatch({ type: "type", pokemon, category })}
         >
-          {type}
+          {category}
         </span>
       ))}
     </div>
@@ -123,21 +123,13 @@ const reducer = (state, action) => {
     case "all":
       return action.pokemon;
 
-    // case TYPES.includes(action.type): {
-    //   console.log("inside");
-
-    //   return state.filter((pokemon) => {
-    //     console.log({ pokemon });
-
-    //     return pokemon.types.some((type) => type === action.type);
-    //   });
-    // }
+    case "type":
+      return state.filter((pokemon) => {
+        return pokemon.types.some((type) => type === action.category);
+      });
 
     default:
-      return state.filter((pokemon) => {
-        return pokemon.types.some((type) => type === action.type);
-      });
-      break;
+      throw new Error("invalid option");
   }
 };
 
@@ -148,8 +140,7 @@ const App = ({ pokemon }) => {
     <main className="page">
       <SetSideBar
         dispatch={dispatch}
-        pokemon={state}
-        allPokemon={pokemon}
+        pokemon={pokemon}
       />
       <PokemonDetails pokemon={state} />
     </main>

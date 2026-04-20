@@ -1,0 +1,35 @@
+.page {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+.side-bar {
+  width: 300px;
+  height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: fixed;
+  background-color: whitesmoke;
+}
+
+.side-bar-link {
+  padding: 0.5em;
+  font-size: 20;
+  line-height: 1em;
+  color: hsla(240, 3%, 8%, 0.737);
+  text-decoration: none;
+}
+
+.side-bar span:hover {
+  background-color: hsla(240, 3%, 8%, 0.737);
+  color: whitesmoke;
+  cursor: pointer;
+}
+
+.side-bar-color {
+  color: whitesmoke;
+}

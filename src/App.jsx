@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import "./App.css";
 const TYPES = [
   "all",
@@ -22,29 +22,29 @@ const TYPES = [
   "water",
 ];
 
-const PokemonHeading = (props) => {
+const PokemonHeading = ({ name }) => {
   return (
     <div className="name">
-      <span>{props.name}</span>
+      <span>{name}</span>
     </div>
   );
 };
 
-const PokemonType = (props) => {
+const PokemonType = ({ types }) => {
   return (
     <div>
-      {props.types.map((type) => (
+      {types.map((type) => (
         <span className={`type ${type}`} key={type}>{type}</span>
       ))}
     </div>
   );
 };
 
-const PokemonStats = (props) => {
+const PokemonStats = ({ stats }) => {
   return (
     <table>
       <tbody>
-        {Object.entries(props.stats).map(([stat, value]) => (
+        {Object.entries(stats).map(([stat, value]) => (
           <tr key={stat} className="details">
             <th>{stat}</th>
             <td>{value}</td>
@@ -55,50 +55,17 @@ const PokemonStats = (props) => {
   );
 };
 
-const PokemonImage = (props) => {
+const PokemonImage = ({ image }) => {
   return (
     <div className="image-container">
-      <img src={props.image} alt="" />
+      <img src={image} alt="" />
     </div>
   );
 };
 
-const SetSideBar = (props) => {
-  return (
-    <div className="side-bar">
-      <SeacrhBar setType={props.setType}></SeacrhBar>
-      {TYPES.map((category) => (
-        <span
-          key={category}
-          className="side-bar-link"
-          onClick={() => props.setType({ action: "type", category })}
-        >
-          {category}
-        </span>
-      ))}
-    </div>
-  );
-};
-
-const PokemonDetails = (props) => {
-  return (
-    <div className="main-container">
-      {props.pokemon.map((pokemon) => (
-        <div className="card" key={pokemon.name}>
-          <PokemonImage image={pokemon.img} />
-          <div className="heading">
-            <PokemonHeading name={pokemon.name} />
-            <PokemonType types={pokemon.types} />
-          </div>
-          <PokemonStats stats={pokemon.stats} />
-        </div>
-      ))}
-    </div>
-  );
-};
-
-const SeacrhBar = (props) => {
+const SeacrhBar = ({ dispatch, pokemon }) => {
   const [value, setValue] = useState("");
+
   return (
     <label htmlFor="search pokemon">
       <input
@@ -108,7 +75,7 @@ const SeacrhBar = (props) => {
         onChange={(e) => {
           const newValue = e.target.value;
           setValue(newValue);
-          props.setType({ action: "search", category: newValue });
+          dispatch({ type: "search", value: newValue });
         }}
       />
       🔍
@@ -116,30 +83,75 @@ const SeacrhBar = (props) => {
   );
 };
 
-const getCategorizedPokemon = (chosenType, allPokemon) =>
-  chosenType === "all"
-    ? allPokemon
-    : allPokemon.filter((pokemon) =>
-      pokemon.types.some((type) => type === chosenType)
-    );
+const SetSideBar = ({ dispatch, pokemon, allPokemon }) => {
+  return (
+    <div className="side-bar">
+      <SeacrhBar dispatch={dispatch} pokemon={pokemon}></SeacrhBar>
+      {TYPES.map((type) => (
+        <span
+          key={type}
+          className="side-bar-link"
+          onClick={() => dispatch({ type, pokemon: allPokemon })}
+        >
+          {type}
+        </span>
+      ))}
+    </div>
+  );
+};
 
-const searchPokemon = (value, pokemon) =>
-  pokemon.filter((poke) => poke.name.includes(value));
+const PokemonDetails = ({ pokemon }) => (
+  <div className="main-container">
+    {pokemon.map((pokemon) => (
+      <div className="card" key={pokemon.name}>
+        <PokemonImage image={pokemon.img} />
+        <div className="heading">
+          <PokemonHeading name={pokemon.name} />
+          <PokemonType types={pokemon.types} />
+        </div>
+        <PokemonStats stats={pokemon.stats} />
+      </div>
+    ))}
+  </div>
+);
 
-const App = (props) => {
-  const [selectedAction, setType] = useState({
-    action: "type",
-    category: "all",
-  });
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "search":
+      return state.filter((poke) => poke.name.includes(action.value));
 
-  const pokemon = selectedAction.action === "search"
-    ? searchPokemon(selectedAction.category, props.pokemon)
-    : getCategorizedPokemon(selectedAction.category, props.pokemon);
+    case "all":
+      return action.pokemon;
+
+    // case TYPES.includes(action.type): {
+    //   console.log("inside");
+
+    //   return state.filter((pokemon) => {
+    //     console.log({ pokemon });
+
+    //     return pokemon.types.some((type) => type === action.type);
+    //   });
+    // }
+
+    default:
+      return state.filter((pokemon) => {
+        return pokemon.types.some((type) => type === action.type);
+      });
+      break;
+  }
+};
+
+const App = ({ pokemon }) => {
+  const [state, dispatch] = useReducer(reducer, pokemon);
 
   return (
     <main className="page">
-      <SetSideBar setType={setType} />
-      <PokemonDetails pokemon={pokemon} />
+      <SetSideBar
+        dispatch={dispatch}
+        pokemon={state}
+        allPokemon={pokemon}
+      />
+      <PokemonDetails pokemon={state} />
     </main>
   );
 };
